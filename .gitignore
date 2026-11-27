@@ -1,0 +1,11 @@
+__pycache__/
+*.egg-info/
+.pytest_cache/
+str_results/
+example_results/
+# never commit donor / patient data
+data/
+*.fsa
+!examples/*.fsa
+*.hid
+.Rhistory

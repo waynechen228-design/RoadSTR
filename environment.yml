@@ -1,0 +1,15 @@
+name: fsa-str-typer
+channels: [conda-forge]
+dependencies:
+  - python>=3.9
+  - numpy>=1.22
+  - scipy>=1.8
+  - pandas>=1.4
+  - biopython>=1.79
+  - pyyaml>=6
+  - openpyxl>=3.0
+  - matplotlib>=3.5
+  - pytest>=7
+  - pip
+  - pip:
+      - -e .

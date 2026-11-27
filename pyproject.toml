@@ -1,0 +1,24 @@
+[build-system]
+requires = ["setuptools>=64"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "fsa-str-typer"
+version = "0.1.0"
+description = "STR genotyping and cell-line authentication from raw ABIF (.fsa) capillary electrophoresis files"
+readme = "README.md"
+license = {text = "MIT"}
+requires-python = ">=3.9"
+dependencies = ["numpy>=1.22", "scipy>=1.8", "pandas>=1.4", "biopython>=1.79", "pyyaml>=6", "openpyxl>=3.0", "matplotlib>=3.5"]
+
+[project.optional-dependencies]
+test = ["pytest>=7"]
+
+[project.scripts]
+str-typer = "fsa_str_typer.cli:main"
+
+[tool.setuptools]
+packages = ["fsa_str_typer"]
+
+[tool.setuptools.package-data]
+fsa_str_typer = ["kits/*.yaml"]

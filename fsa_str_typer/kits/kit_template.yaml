@@ -1,0 +1,110 @@
+# =============================================================================
+# Kit definition TEMPLATE  -  copy this file, rename it (e.g. powerplex16.yaml),
+# and fill in the fields marked  <<FILL>>.
+# -----------------------------------------------------------------------------
+# Where to find each piece of information
+#   1. Kit user guide (vendor website, free PDF). Look for the table usually
+#      called "Loci amplified by the kit" or "Locus-specific information":
+#        -> marker names, dye, chromosome location, alleles in the allelic
+#           ladder, control DNA genotype
+#      The allelic ladder figure in the same guide shows the allele order per dye.
+#   2. Size standard user guide / product sheet (e.g. GeneScan 500 LIZ,
+#      GeneScan 600 LIZ v2.0, Promega ILS 600): list of fragment sizes and any
+#      fragment the vendor recommends excluding.
+#   3. Your own .fsa files: the dye names (DyeN1..DyeN6 tags) and size standard
+#      name (StdF1 tag) are stored in every file. Run:
+#         str-typer inspect Ladder.fsa
+#      to print them, so the names below match exactly.
+#   4. NIST STRBase (strbase.nist.gov): repeat unit length per locus and
+#      nomenclature of known microvariant alleles.
+#
+# You do NOT need base-pair bin positions. They are measured from the allelic
+# ladder injected in the same run.
+#
+# After filling in, check the file against a real ladder run:
+#     str-typer validate-kit my_kit.yaml --ladder Ladder.fsa
+# The check confirms that every listed ladder allele is found, in order, in the
+# stated dye. Then set status to "validated" and record the instrument setup.
+# =============================================================================
+
+kit:
+  name: <<FILL>>                 # e.g. PowerPlex 16 HS System
+  vendor: <<FILL>>               # e.g. Promega
+  equivalent_kits: []            # other kits with identical loci/dyes/ladder (optional)
+  status: unverified             # change to: validated (after validate-kit passes)
+  validated_on: ""               # e.g. "3500xL, POP-4, ILS600, dye set F"
+
+# One entry per dye channel, in the order stored in the .fsa file.
+# 5-dye chemistry (e.g. Identifiler): 4 sample dyes + size standard (5 channels).
+# 6-dye chemistry (e.g. GlobalFiler): 5 sample dyes + size standard (6 channels).
+# 'str-typer inspect' shows the channel order of your files.
+dyes:
+  - {channel: 1, name: <<FILL>>, color: blue}
+  - {channel: 2, name: <<FILL>>, color: green}
+  - {channel: 3, name: <<FILL>>, color: yellow}
+  - {channel: 4, name: <<FILL>>, color: red}
+  # - {channel: 5, name: <<FILL>>, color: purple}          # only for 6-dye kits
+  - {channel: 5, name: <<FILL>>, color: orange, role: size_standard}
+
+size_standard: <<FILL>>          # must be a key in size_standards below
+
+control_dna:                     # optional but strongly recommended (positive-control check)
+  name: <<FILL>>                 # e.g. 9947A, 2800M, 007
+  genotype:
+    # MARKER: ["allele", "allele"]    homozygote -> one allele
+    <<MARKER_1>>: ["<<FILL>>", "<<FILL>>"]
+
+markers:
+  # Copy one block per locus. IMPORTANT: within each dye, list the markers in
+  # order of increasing size (left to right on the electropherogram). The ladder
+  # peaks of a dye are assigned to markers in this order.
+  <<MARKER_1>>:                  # e.g. D3S1358   (use the kit's exact spelling)
+    dye: <<FILL>>                # must match a name in 'dyes'
+    chromosome: <<FILL>>         # e.g. 3p21.31   (optional; used in report tables)
+    repeat_unit: 4               # 4 = tetranucleotide; 5 for Penta D / Penta E; null for AMEL
+    ladder_alleles: [<<FILL>>]   # ALL ladder alleles in size order, as strings,
+                                 # e.g. ["12","13","14","15","16","17","18","19"]
+                                 # microvariants written as "9.3", "13.2", ...
+  # Sex markers:
+  # AMEL:
+  #   dye: <<FILL>>
+  #   repeat_unit: null
+  #   ladder_alleles: ["X","Y"]
+  # Some kits add Y-indel / DYS391; give them repeat_unit as stated in the guide.
+
+# Library of size standards. Keep the ones you use; add new ones the same way.
+# 'verified: false' = transcribed from documentation but not yet tested with this program.
+size_standards:
+  GS500_LIZ:                     # Thermo GeneScan 500 LIZ
+    fragments: [35, 50, 75, 100, 139, 150, 160, 200, 250, 300, 340, 350, 400, 450, 490, 500]
+    exclude: [250]
+    sizing_method: local_southern
+    verified: true
+  GS600_LIZ_v2:                  # Thermo GeneScan 600 LIZ v2.0 (e.g. GlobalFiler)
+    fragments: [20, 40, 60, 80, 100, 114, 120, 140, 160, 180, 200, 214, 220, 240, 250, 260,
+                280, 300, 314, 320, 340, 360, 380, 400, 414, 420, 440, 460, 480, 500, 514,
+                520, 540, 560, 580, 600]
+    exclude: []
+    sizing_method: local_southern
+    verified: false              # confirm against the size standard product sheet
+  ILS600:                        # Promega Internal Lane Standard 600 (PowerPlex)
+    fragments: [60, 80, 100, 120, 140, 160, 180, 200, 225, 250, 275, 300, 325, 350, 375,
+                400, 425, 450, 475, 500, 550, 600]
+    exclude: []
+    sizing_method: local_southern
+    verified: false              # confirm against the size standard product sheet
+
+# Analysis defaults (work for most kits; override only with a validated reason).
+analysis:
+  analytical_threshold_rfu: 150  # many labs use 50-175 RFU depending on instrument
+  stochastic_threshold_rfu: null
+  bin_tolerance_bp: 0.5
+  stutter_max_ratio: 0.15        # kit guides often give per-locus values; you may add
+                                 # per-marker 'stutter_max_ratio' inside a marker block
+  min_allele_fraction: 0.2         # peaks below this fraction of the main allele are not called (listed as minor)
+  saturation_rfu: 32000            # raw signal at/above this = off-scale (3730/3500 ceiling ~32,767)
+  spike_max_fwhm_scans: 2.0        # narrower peaks are electrical spikes, not DNA fragments
+  heterozygote_balance_min: 0.5
+  pullup_call_ratio: 2.0
+  microvariant_detection: true
+  match_threshold_percent: 80    # ANSI/ATCC ASN-0002
